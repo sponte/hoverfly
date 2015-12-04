@@ -29,8 +29,10 @@
     <p>Hoverfly is a lightweight, open source <a href="https://en.wikipedia.org/wiki/Service_virtualization">service virtualization</a>
        tool. Using Hoverfly, you can virtualize your application dependencies to create a self-contained development or test environment.</p>
 
-    <p>Hoverfly is a proxy written in <a href="https://golang.org/">Go</a>. It can capture HTTP(s) traffic between an application 
+    <p>Hoverfly is a proxy written in <a href="https://golang.org/">Go</a>. It can capture HTTP(s) traffic between an application
        under test and external services, and then replace the external services. It can also generate synthetic responses on the fly.</p>
+
+    <img src="img/hf_capture.png" alt="Hoverfly capture">
 
     <h1>
         <a class="anchor"
@@ -38,11 +40,13 @@
     </h1>
 
     <p>
-        Hoverfly can simulate real-world behavior - such as network latency, timeouts or rate limits - using middleware modules. 
-        Middleware modules can be written in any language, so you can use whatever you're comfortable with: Python, Ruby, PHP or 
+        Hoverfly can simulate real-world behavior - such as network latency, timeouts or rate limits - using middleware modules.
+        Middleware modules can be written in any language, so you can use whatever you're comfortable with: Python, Ruby, PHP or
         even shell scripts. From adding a simple delay to a response, to implementing complex logic that transforms responses, the possibilities are
         literally endless.
     </p>
+
+    <img src="img/hf_virtualize.png" alt="Hoverfly virtualize">
 
     <h1>
         <a class="anchor"
@@ -50,11 +54,12 @@
     </h1>
 
     <p>
-       Imagine a scenario where another team is working on a service but they haven't yet published it. Your software relies 
-       on this service. Now you can simply create a snippet in your favourite language with basic rules which define what to return 
+       Imagine a scenario where another team is working on a service but they haven't yet published it. Your software relies
+       on this service. Now you can simply create a snippet in your favourite language with basic rules which define what to return
        on each request. Hoverfly will then synthesize this service for you. Mocking is a thing of the past.
     </p>
 
+    <img src="img/hf_synthesize.png" alt="Hoverfly synthesize">
 
     <footer class="site-footer">
         <span class="site-footer-owner"><a
