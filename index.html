@@ -30,10 +30,31 @@
             href="https://en.wikipedia.org/wiki/Service_virtualization">service virtualization</a>. Using Hoverfly, you
         can virtualize your application dependencies to create a self-contained development/test environment.</p>
 
-    <p>Hoverfly is a proxy written in Go. It can capture HTTP(s) traffic between an application under test and external
-        services, and then replace the external services. Another powerful feature - middleware modules, where users can
-        introduce their own custom logic. Middleware modules can be written in any language. Hoverfly uses Redis for
-        persistence.</p>
+    <p>Hoverfly is a proxy written in <a href="https://golang.org/">Go</a>. It can capture HTTP(s) traffic between an
+        application under test and external services, and then replace the external services.</p>
+
+    <h1>
+        <a class="anchor"
+           aria-hidden="true"><span class="octicon octicon-link"></span></a>Seamlessly introduce custom logic
+    </h1>
+
+    <p>
+        Hoverfly middleware modules can be written in <strong>any language</strong>. This enables easy adoption, whether you want
+        to add a simple delay to response or whether you want to add complex logic that reaches out to multiple services or does response
+        transformation (for example changing dates to present/future for previously recorded HTTP responses).
+    </p>
+
+
+    <h1>
+        <a class="anchor"
+           aria-hidden="true"><span class="octicon octicon-link"></span></a>Build synthetic services
+    </h1>
+
+    <p>
+       Middleware is powerful. Imagine a scenario where other team is working on a service but they haven't yet published it.
+       Your software is relying on these services. Now you can simply create a snippet in your favourite language with basic rules
+       what to return on each request. Hoverfly will then synthesize this service for you. No more mocking.
+    </p>
 
 
     <footer class="site-footer">
