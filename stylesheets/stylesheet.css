@@ -29,10 +29,10 @@ a {
     margin-left: 1rem; }
 
 .btn:hover {
-  color: rgba(255, 255, 255, 0.8);
+  color: #c3996b;
   text-decoration: none;
   background-color: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.3); }
+  border-color: #c3996b; }
 
 @media screen and (min-width: 64em) {
   .btn {
