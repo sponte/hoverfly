@@ -13,6 +13,7 @@ type Configuration struct {
 	destination  string
 	middleware   string
 	databaseName string
+	endpoint     string
 	verbose      bool
 
 	mu sync.Mutex
