@@ -295,6 +295,7 @@ func (d *DBClient) getResponse(req *http.Request) *http.Response {
 			log.WithFields(log.Fields{
 				"error": err.Error(),
 			}).Error("Failed to decode payload")
+			return nil
 		}
 
 		c := NewConstructor(req, *payload)

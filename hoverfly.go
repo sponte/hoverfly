@@ -49,6 +49,8 @@ func main() {
 	destination := flag.String("destination", ".", "destination URI to catch")
 	middleware := flag.String("middleware", "", "should proxy use middleware")
 
+	endpoint := flag.String("endpoint", "", "forward all requests to this endpoint")
+
 	// proxy port
 	proxyPort := flag.String("pp", "", "proxy port - run proxy on another port (i.e. '-pp 9999' to run proxy on port 9999)")
 	// admin port
@@ -71,6 +73,10 @@ func main() {
 	}
 	if *adminPort != "" {
 		cfg.adminPort = *adminPort
+	}
+
+	if *endpoint != "" {
+		cfg.endpoint =*endpoint
 	}
 
 	// overriding default middleware setting
@@ -122,6 +128,7 @@ func main() {
 // getNewHoverfly returns a configured ProxyHttpServer and DBClient, also starts admin interface on configured port
 func getNewHoverfly(cfg *Configuration) (*goproxy.ProxyHttpServer, DBClient) {
 
+
 	// getting boltDB
 	db := getDB(cfg.databaseName)
 
@@ -147,12 +154,15 @@ func getNewHoverfly(cfg *Configuration) (*goproxy.ProxyHttpServer, DBClient) {
 	proxy.OnRequest(goproxy.ReqHostMatches(regexp.MustCompile(d.cfg.destination))).
 		HijackConnect(func(req *http.Request, client net.Conn, ctx *goproxy.ProxyCtx) {
 		defer func() {
+				log.Warn("Inside defer")
 			if e := recover(); e != nil {
 				ctx.Logf("error connecting to remote: %v", e)
 				client.Write([]byte("HTTP/1.1 500 Cannot reach destination\r\n\r\n"))
 			}
 			client.Close()
 		}()
+
+		log.Warn("Hijacking connection")
 		clientBuf := bufio.NewReadWriter(bufio.NewReader(client), bufio.NewWriter(client))
 		remote, err := net.Dial("tcp", req.URL.Host)
 		orPanic(err)
@@ -169,12 +179,40 @@ func getNewHoverfly(cfg *Configuration) (*goproxy.ProxyHttpServer, DBClient) {
 			orPanic(clientBuf.Flush())
 		}
 	})
+	proxy.OnRequest().DoFunc(
+		func(r *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
+			log.Warn("DoFunc")
+			log.Warn(r.URL.IsAbs())
+			return d.processRequest(r)
+		})
 
 	// processing connections
 	proxy.OnRequest(goproxy.ReqHostMatches(regexp.MustCompile(cfg.destination))).DoFunc(
 		func(r *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
+			log.Warn("DoFunc")
+			log.Warn(r.URL.IsAbs())
 			return d.processRequest(r)
 		})
+
+	if cfg.endpoint != "" {
+		log.Debug("Endpoint specified, overriding destination for all requests to " + cfg.endpoint)
+		proxy.NonproxyHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			log.Warn("NonproxyHandler")
+			req, resp := d.processRequest(r)
+			body, err := extractBody(resp)
+
+			if err != nil {
+					log.Error("Error reading response body")
+					w.WriteHeader(500)
+					return
+			}
+
+			w.Header().Set("X-stanislaw", "wozniak")
+			w.Header().Set("Req", req.RequestURI)
+			w.Header().Set("Resp", resp.Header.Get("Content-Length"))
+			w.Write(body)
+		})
+	}
 
 	go d.startAdminInterface()
 
@@ -192,6 +230,9 @@ func getNewHoverfly(cfg *Configuration) (*goproxy.ProxyHttpServer, DBClient) {
 // processRequest - processes incoming requests and based on proxy state (record/playback)
 // returns HTTP response.
 func (d *DBClient) processRequest(req *http.Request) (*http.Request, *http.Response) {
+	req.Host = d.cfg.endpoint
+	req.URL.Host = d.cfg.endpoint
+	req.URL.Scheme = "http"
 
 	mode := d.cfg.GetMode()
 	if mode == CaptureMode {
@@ -228,6 +269,7 @@ func (d *DBClient) processRequest(req *http.Request) (*http.Request, *http.Respo
 
 	log.Info("*** Virtualize ***")
 	newResponse := d.getResponse(req)
+	log.Warn("new Response", newResponse)
 	return req, newResponse
 
 }
